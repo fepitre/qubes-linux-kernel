@@ -6,7 +6,7 @@
 %define _sourcedir %(pwd)
 %endif
 
-#%define _unpackaged_files_terminate_build 0
+%define _unpackaged_files_terminate_build 0
 %define variant pvops.qubes
 %define plainrel %(cat rel)
 %define rel %{plainrel}.%{variant}
