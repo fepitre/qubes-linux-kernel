@@ -1,0 +1,27 @@
+From 783b674f77c7cceb25353f9304e8d12500f2a5c6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Fr=C3=A9d=C3=A9ric=20Pierret=20=28fepitre=29?=
+ <frederic.pierret@qubes-os.org>
+Date: Sun, 26 Jan 2020 23:24:33 +0100
+Subject: [PATCH] nv50_disp_chan_mthd: ensure mthd is not NULL
+
+Temporary fix for https://bugzilla.kernel.org/show_bug.cgi?id=206299
+---
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
+index bcf32d92ee5a..50e3539f33d2 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/channv50.c
+@@ -74,6 +74,8 @@ nv50_disp_chan_mthd(struct nv50_disp_chan *chan, int debug)
+ 
+ 	if (debug > subdev->debug)
+ 		return;
++	if (!mthd)
++		return;
+ 
+ 	for (i = 0; (list = mthd->data[i].mthd) != NULL; i++) {
+ 		u32 base = chan->head * mthd->addr;
+-- 
+2.20.1
+
