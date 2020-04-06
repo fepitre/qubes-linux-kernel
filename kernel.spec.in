@@ -83,6 +83,7 @@ BuildRequires:  gcc
 
 # Needed for building GCC hardened plugins
 BuildRequires: gcc-c++
+BuildRequires: gcc-plugin-devel
 
 Provides:       multiversion(kernel)
 Provides:       %name = %kernelrelease
