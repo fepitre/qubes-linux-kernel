@@ -140,6 +140,16 @@ Patch12: 0013-xen-pcifront-pciback-Update-pciif.h-with-err-and-res.patch
 Patch13: 0014-xen-events-avoid-NULL-pointer-dereference-in-evtchn-from-irq.patch
 Patch14: 0015-xen-pciback-fix-INTERRUPT_TYPE_-defines.patch
 Patch15: 0016-gcc-common.h-params.h-has-been-dropped-in-GCC10.patch
+Patch16: 0001-drm-nouveau-ttm-evict-other-IO-mappings-when-running.patch
+Patch17: 0002-drm-nouveau-remove-checks-for-return-value-of-debugf.patch
+Patch18: 0003-drm-nouveau-svm-fix-vma-range-check-for-migration.patch
+Patch19: 0004-drm-nouveau-svm-check-for-SVM-initialized-before-mig.patch
+Patch20: 0005-drm-nouveau-svm-remove-useless-SVM-range-check.patch
+Patch21: 0006-drm-nouveau-workaround-runpm-fail-by-disabling-PCI-p.patch
+Patch22: 0007-drm-nouveau-gr-gp107-gp108-implement-workaround-for-.patch
+Patch23: 0008-drm-nouveau-nvif-access-PTIMER-through-usermode-clas.patch
+Patch24: 0009-drm-nouveau-nvif-protect-waits-against-GPU-falling-o.patch
+Patch25: 0010-drm-nouveau-kms-nv50-wait-for-FIFO-space-on-PIO-chan.patch
 
 %description
 Qubes Dom0 kernel.
