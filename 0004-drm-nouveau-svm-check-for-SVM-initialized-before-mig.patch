@@ -1,0 +1,35 @@
+From f2db5267d096c0df2d7dafc8f3a2db6c395d290a Mon Sep 17 00:00:00 2001
+From: Ralph Campbell <rcampbell@nvidia.com>
+Date: Tue, 3 Mar 2020 16:13:37 -0800
+Subject: [PATCH] drm/nouveau/svm: check for SVM initialized before migrating
+
+When migrating system memory to GPU memory, check that SVM has been
+enabled. Even though most errors can be ignored since migration is
+a performance optimization, return an error because this is a violation
+of the API.
+
+Signed-off-by: Ralph Campbell <rcampbell@nvidia.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+---
+ drivers/gpu/drm/nouveau/nouveau_svm.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/gpu/drm/nouveau/nouveau_svm.c b/drivers/gpu/drm/nouveau/nouveau_svm.c
+index 0d29e81ce216..824654742a60 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_svm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_svm.c
+@@ -173,6 +173,11 @@ nouveau_svmm_bind(struct drm_device *dev, void *data,
+ 	mm = get_task_mm(current);
+ 	down_read(&mm->mmap_sem);
+ 
++	if (!cli->svm.svmm) {
++		up_read(&mm->mmap_sem);
++		return -EINVAL;
++	}
++
+ 	for (addr = args->va_start, end = args->va_start + size; addr < end;) {
+ 		struct vm_area_struct *vma;
+ 		unsigned long next;
+-- 
+2.25.1
+
