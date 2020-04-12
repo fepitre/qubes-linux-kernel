@@ -1,0 +1,87 @@
+From:   Sergei Trofimovich <slyfox@gentoo.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Sergei Trofimovich <slyfox@gentoo.org>,        Jakub Jelinek <jakub@redhat.com>,        Thomas Gleixner <tglx@linutronix.de>,        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,        "H. Peter Anvin" <hpa@zytor.com>,        Andy 
+Subject: [PATCH v2] x86: fix early boot crash on gcc-10
+Date:   Thu, 26 Mar 2020 23:16:16 +0000
+Message-Id: <20200326231616.186924-1-slyfox@gentoo.org>
+X-Mailer: git-send-email 2.26.0
+In-Reply-To: <20200314164451.346497-1-slyfox@gentoo.org>
+References: <20200314164451.346497-1-slyfox@gentoo.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+List-Id: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+Received-SPF: pass client-ip=209.132.180.67; envelope-from=linux-kernel-owner@vger.kernel.org; helo=vger.kernel.org
+
+The change fixes boot failure on physical machine where kernel
+is built with gcc-10 with stack protector enabled by default:
+
+```
+Kernel panic — not syncing: stack-protector: Kernel stack is corrupted in: start_secondary+0x191/0x1a0
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 5.6.0-rc5—00235—gfffb08b37df9 #139
+Hardware name: Gigabyte Technology Co., Ltd. To be filled by O.E.M./H77M—D3H, BIOS F12 11/14/2013
+Call Trace:
+  dump_stack+0x71/0xa0
+  panic+0x107/0x2b8
+  ? start_secondary+0x191/0x1a0
+  __stack_chk_fail+0x15/0x20
+  start_secondary+0x191/0x1a0
+  secondary_startup_64+0xa4/0xb0
+-—-[ end Kernel panic — not syncing: stack—protector: Kernel stack is corrupted in: start_secondary+0x191
+```
+
+This happens because `start_secondary()` is responsible for setting
+up initial stack canary value in `smpboot.c`, but nothing prevents
+gcc from inserting stack canary into `start_secondary()` itself
+before `boot_init_stack_canary()` call.
+
+The fix inhibits stack canary check foa single `start_secondary()`
+function.
+
+Tested the change by successfully booting the machine.
+
+A few similar crashes on VMs:
+- https://bugzilla.redhat.com/show_bug.cgi?id=1796780
+- http://rglinuxtech.com/?p=2694
+
+CC: Jakub Jelinek <jakub@redhat.com>
+CC: Thomas Gleixner <tglx@linutronix.de>
+CC: Ingo Molnar <mingo@redhat.com>
+CC: Borislav Petkov <bp@alien8.de>
+CC: "H. Peter Anvin" <hpa@zytor.com>
+CC: Andy Lutomirski <luto@kernel.org>
+CC: Peter Zijlstra <peterz@infradead.org>
+CC: Michael Matz <matz@suse.de>
+CC: x86@kernel.org
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+---
+ arch/x86/kernel/smpboot.c      | 5 ++++-
+ include/linux/compiler-gcc.h   | 1 +
+ include/linux/compiler_types.h | 4 ++++
+ 3 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+index 69881b2d446c..99a4cb631a64 100644
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -207,8 +207,11 @@ static int cpu0_logical_apicid;
+ static int enable_start_cpu0;
+ /*
+  * Activate a secondary processor.
++ *
++ * Note: 'boot_init_stack_canary' changes canary value. Omit
++ * stack protection to avoid canary check (and boot) failure.
+  */
+-static void notrace start_secondary(void *unused)
++static void __no_stack_protector notrace start_secondary(void *unused)
+ {
+ 	/*
+ 	 * Don't put *anything* except direct CPU state initialization
+-- 
+2.26.0
+
+
+
