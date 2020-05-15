@@ -139,8 +139,7 @@ Patch14: 0015-xen-events-avoid-NULL-pointer-dereference-in-evtchn_.patch
 Patch15: 0016-gcc-common.h-params.h-has-been-dropped-in-GCC10.patch
 
 %if 0%{?fedora} == 32
-Patch16: xen-x86-fix-early-boot-crash-on-gcc-10.patch
-Patch17: x86-fix-early-boot-crash-on-gcc-10.patch
+Patch16: x86-fix-early-boot-crash-on-gcc-10.patch
 %endif
 
 %description
