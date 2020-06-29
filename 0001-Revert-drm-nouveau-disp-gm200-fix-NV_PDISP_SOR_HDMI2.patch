@@ -1,0 +1,32 @@
+From 0b78388f7844b2c3ffe38ceb5810c3779cd5d3f0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Fr=C3=A9d=C3=A9ric=20Pierret=20=28fepitre=29?=
+ <frederic.pierret@qubes-os.org>
+Date: Mon, 29 Jun 2020 10:39:16 +0200
+Subject: [PATCH] Revert "drm/nouveau/disp/gm200-: fix
+ NV_PDISP_SOR_HDMI2_CTRL(n) selection"
+
+This reverts commit bfe0bc40e53ac3198b6696282f83665757f26f67.
+---
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
+index bf6d41fb0c9f..9b16a08eb4d9 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/hdmigm200.c
+@@ -27,10 +27,10 @@ void
+ gm200_hdmi_scdc(struct nvkm_ior *ior, int head, u8 scdc)
+ {
+ 	struct nvkm_device *device = ior->disp->engine.subdev.device;
+-	const u32 soff = nv50_ior_base(ior);
++	const u32 hoff = head * 0x800;
+ 	const u32 ctrl = scdc & 0x3;
+ 
+-	nvkm_mask(device, 0x61c5bc + soff, 0x00000003, ctrl);
++	nvkm_mask(device, 0x61c5bc + hoff, 0x00000003, ctrl);
+ 
+ 	ior->tmds.high_speed = !!(scdc & 0x2);
+ }
+-- 
+2.25.4
+
